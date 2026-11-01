@@ -1,415 +1,384 @@
-# security-assessment-reports
-Security assessments, penetration testing documentation, vulnerability analysis, and defensive security research.
-SECURITY ASSESSMENT REPORT
+# Отчет по аудиту информационной безопасности
 
-Assessment Date: November 1, 2026
-Target: target-news-portal.com (Anonymized)
-Infrastructure IP: 198.51.100.42 (Anonymized)
-Assessment Type: Black-Box Security Assessment
-Methodology: OWASP Top 10, PTES
-Report Classification: Confidential
+Документ конфиденциального уровня
 
-⸻
+Дата аудита: 01.11.2026  
+Цель проверки: target-news-portal.com (анонимизировано)  
+Инфраструктурный IP: 198.51.100.42 (анонимизировано)  
+Тип аудита: Внешний black-box аудит безопасности  
+Методология: OWASP Top 10, PTES  
+Классификация отчета: Конфиденциально
 
-1. Executive Summary
+---
 
-An independent black-box security assessment was conducted against the target news portal to evaluate its externally exposed infrastructure and application-layer security controls.
+## 1. Резюме
 
-The assessment focused on identifying outdated software components, insecure server configurations, publicly accessible administrative interfaces, and potential weaknesses in the application’s input-handling mechanisms.
+Независимый внешний аудит безопасности был проведен для оценки защищенности внешне доступной инфраструктуры и веб-приложения новостного портала. Основной фокус проверки был направлен на выявление устаревших компонентов, уязвимых конфигураций, несанкционированно доступных административных интерфейсов и потенциальных проблем в обработке пользовательских данных на уровне приложения.
 
-The investigation identified several security concerns, primarily associated with legacy infrastructure components and insufficient security hardening.
+В ходе оценки были выявлены несколько значимых рисков, в первую очередь связанных с устаревшей инфраструктурой и недостаточной защитой базовых сервисов. Наиболее критические наблюдения включают:
 
-The most significant observations include:
+- устаревшую среду выполнения PHP 5.3.10;
+- публично доступный интерфейс настройки phpMyAdmin;
+- поддержку устаревших версий TLS 1.0 и TLS 1.1;
+- отсутствие атрибутов безопасности у нескольких HTTP cookies;
+- wildcard DNS-конфигурацию, приводящую к произвольному разрешению субдоменов.
 
-* An outdated PHP 5.3.10 runtime exposed through HTTP response headers.
-* A publicly accessible phpMyAdmin setup interface associated with an obsolete software release.
-* Support for deprecated TLS 1.0 and TLS 1.1 protocols.
-* Missing security attributes on several HTTP cookies.
-* A wildcard DNS configuration affecting arbitrary subdomain resolution.
+Проверка функциональности поиска на уровне приложения не выявила успешной эксплуатации тестовых сценариев XSS и SQL Injection в пределах проведенного аудита.
 
-Application-layer testing of the publicly accessible search functionality did not identify successful exploitation of the tested XSS or SQL injection cases.
+Общий вывод: основной риск сосредоточен в инфраструктурном слое, а не в проверенных механизмах обработки пользовательского ввода на уровне веб-приложения. Устаревшая версия PHP и открытый интерфейс настройки phpMyAdmin представляют наибольшую угрозу безопасности и требуют немедленного устранения.
 
-Overall Assessment:
+---
 
-The primary security concerns are concentrated within the infrastructure layer rather than the tested application input-handling mechanisms. The outdated PHP runtime represents a significant maintenance and security risk, while the exposed administrative setup interface increases unnecessary external attack surface.
+## 2. Объект и границы аудита
 
-Immediate infrastructure remediation is recommended.
+### 2.1 Объект проверки
 
-2. Scope and Methodology
+Проверке подвергались следующие внешне доступные компоненты:
 
-2.1 Assessment Scope
+- заголовки HTTP и идентификация используемых технологий;
+- версия PHP, раскрываемая в ответах сервера;
+- публично доступные интерфейсы phpMyAdmin;
+- настройки протоколов TLS;
+- атрибуты безопасности HTTP cookies;
+- конфигурация DNS и субдоменов;
+- функциональность поиска и базовая проверка корректности обработки ввода.
 
-The assessment covered the following externally observable components:
+Все идентифицирующие данные были анонимизированы.
 
-* HTTP response headers and technology identification.
-* PHP runtime version disclosure.
-* Publicly accessible phpMyAdmin interfaces.
-* TLS protocol configuration.
-* HTTP cookie security attributes.
-* DNS wildcard resolution.
-* Search functionality and input validation.
+### 2.2 Методология
 
-All identifying information has been anonymized.
+Аудит выполнялся в рамках модели black-box testing с использованием стандартных подходов к тестированию безопасности веб-приложений и сетевой инфраструктуры.
 
-2.2 Methodology
+Использованные ориентиры:
 
-The assessment followed a black-box testing approach based on established penetration-testing methodologies.
+- OWASP Top 10;
+- Penetration Testing Execution Standard (PTES);
+- Common Weakness Enumeration (CWE);
+- общедоступные материалы по уязвимостям и безопасной конфигурации.
 
-The primary references were:
+Проверка носила некритичный, неразрушающий характер: не производилось намеренное изменение данных, не выполнялись действия, способные нарушить стабильность сервисов или вызвать отказ в обслуживании.
 
-* OWASP Top 10.
-* Penetration Testing Execution Standard (PTES).
-* Common Weakness Enumeration (CWE).
-* Publicly documented vulnerability advisories.
+---
 
-Testing was limited to non-destructive security checks. No intentional data modification, destructive exploitation, or service disruption was performed.
+## 3. Основные технические находки
 
-⸻
+### Найдение 01 — Устаревшая версия PHP и повышенный риск эксплуатации известных уязвимостей
 
-3. Technical Findings
+- Уровень риска: Высокий
+- CWE: CWE-1104 — Use of Unmaintained Third-Party Components
+- Статус: Обнаружено, требуется подтверждение применимости уязвимостей к конкретной сборке
 
-Finding 01 — End-of-Life PHP Runtime and Potential Remote Code Execution Exposure
+#### Описание
 
-Severity: High
-Potential Impact: Critical, subject to vulnerability applicability
-CWE: CWE-1104 — Use of Unmaintained Third-Party Components
-Status: Observed; CVE applicability requires confirmation.
+В ответах HTTP-сервера было раскрыто следующее:
 
-Description
+`X-Powered-By: PHP/5.3.10-1ubuntu3.16`
 
-The HTTP response headers disclosed the following server-side technology:
+Версия PHP 5.3 достигла окончания поддержки в 2014 году и больше не получает актуальных исправлений безопасности от разработчиков проекта. Использование неподдерживаемой версии PHP существенно увеличивает риск эксплуатации общеизвестных уязвимостей и проблем совместимости.
 
-X-Powered-By: PHP/5.3.10-1ubuntu3.16
+#### Риск и влияние
 
-PHP 5.3 reached its official end-of-life status in 2014. Consequently, this release is no longer supported by upstream PHP security maintenance.
+Использование устаревшей платформы может привести к следующим последствиям:
 
-Operating an unsupported PHP runtime significantly increases exposure to publicly documented vulnerabilities and compatibility issues.
+- эксплуатации известных уязвимостей, которые уже закрыты в актуальных релизах;
+- потенциальному удаленному выполнению кода при наличии уязвимого кода или конфигураций;
+- отказам в обслуживании и нестабильной работе приложений;
+- повышению вероятности компрометации через уязвимые модули и компоненты.
 
-Related Vulnerability
+#### Рекомендации
 
-The assessment identified CVE-2026-109618 as a relevant vulnerability requiring investigation.
+1. Обновить PHP до актуально поддерживаемой версии.
+2. Проверить установленные пакеты и патчи на предмет наличия vendor backport и обновлений безопасности.
+3. Применить все доступные обновления операционной системы и зависимостей.
+4. Отключить разглашение версии PHP через заголовки HTTP (`expose_php = Off`).
+5. Проверить и удалить устаревшие расширения и неиспользуемые модули.
 
-The vulnerability concerns improper handling of Out-Of-Memory (OOM) conditions involving PHP’s longjmp() error-handling mechanism. Under certain conditions, incomplete request-state initialization can result in memory corruption during subsequent cleanup operations.
+#### Приоритет
 
-Depending on the affected build and execution environment, successful exploitation may result in remote code execution or denial of service.
+Немедленный.
 
-However, the publicly disclosed PHP version alone does not establish that this specific CVE is exploitable on the target. The installed Ubuntu package revision, vendor security backports, and affected-version conditions must be verified separately.
+---
 
-Security Impact
+### Найдение 02 — Публично доступный интерфейс настройки phpMyAdmin
 
-An unsupported PHP runtime may expose the application to:
+- Уровень риска: Высокий
+- CWE: CWE-16 — Configuration
+- CWE: CWE-200 — Exposure of Sensitive Information to an Unauthorized Actor
+- Статус: Подтверждено
 
-* Previously identified and unpatched vulnerabilities.
-* Potential remote code execution.
-* Denial-of-service conditions.
-* Increased risk of compromise through vulnerable third-party components.
+#### Описание
 
-Recommendations
+Был обнаружен публично доступный путь:
 
-1. Migrate to a currently supported PHP release.
-2. Verify the installed package revision against the relevant security advisories.
-3. Apply all available vendor security updates.
-4. Disable unnecessary version disclosure using expose_php = Off.
-5. Review PHP extensions and remove unsupported components.
+`/phpmyadmin/setup/index.php`
 
-Priority: Immediate.
+В ходе проверки интерфейс setup позволял генерировать и загружать файл `config.inc.php`. В полученном файле не содержались активные учетные данные базы данных, что соответствует наблюдаемым ограничениям прав доступа к каталогу конфигурации.
 
-⸻
+Тем не менее файл раскрывал точную версию программного обеспечения:
 
-Finding 02 — Publicly Accessible phpMyAdmin Setup Interface
+`phpMyAdmin 3.4.10.1deb1`
 
-Severity: High
-CWE: CWE-16 — Configuration
-CWE: CWE-200 — Exposure of Sensitive Information to an Unauthorized Actor
-Status: Confirmed observation.
+Данная версия относится к 2012 году и считается существенно устаревшей.
 
-Description
+#### Риск и влияние
 
-The following installation interface was publicly accessible:
+Публично доступный интерфейс настройки административного инструмента создает дополнительную поверхность атаки. Утечка версии программного обеспечения позволяет злоумышленнику быстро определить исторические уязвимости и подготовить таргетированную атаку.
 
-/phpmyadmin/setup/index.php
+Даже при отсутствии активных учетных данных на этапе оценки, наличие такого интерфейса в продакшн-среде является небезопасной практикой. При изменении прав доступа, конфигурации файловой системы или параметров развертывания это может привести к серьезным последствиям.
 
-During the assessment, the setup interface allowed the generation and download of a config.inc.php configuration file.
+#### Рекомендации
 
-The downloaded file did not contain active database credentials. This was consistent with the observed lack of write permissions on the configuration directory.
+1. Удалить каталог `/setup/` из продакшн-среды.
+2. Обновить phpMyAdmin до актуальной поддерживаемой версии.
+3. Ограничить административный доступ с помощью сетевых фильтров или VPN.
+4. Использовать только защищенный HTTPS для всех административных интерфейсов.
+5. Проверить права доступа к конфигурационным файлам и запретить запись неавторизованным пользователям.
 
-However, the generated file disclosed the exact software version:
+#### Приоритет
 
-phpMyAdmin 3.4.10.1deb1
+Высокий.
 
-This release dates back to 2012 and is significantly outdated.
+---
 
-Security Impact
+### Найдение 03 — Поддержка устаревших версий TLS
 
-The public availability of an obsolete administrative setup interface introduces unnecessary attack surface.
+- Уровень риска: Средний
+- CWE: CWE-327 — Use of a Broken or Risky Cryptographic Algorithm
+- Статус: Подтверждено
 
-Version disclosure may assist an attacker in identifying relevant historical vulnerabilities and developing targeted attacks against the installation.
+#### Описание
 
-Additionally, changes to filesystem permissions or deployment configuration could introduce further risks if the setup functionality remains accessible.
+Сервер принимал HTTPS-соединения с использованием устаревших версий TLS.
 
-No database compromise or unauthorized configuration modification was demonstrated during this assessment.
+Во время проверки были обнаружены следующие протоколы:
 
-Recommendations
+- TLS 1.0
+- TLS 1.1
 
-1. Remove the /setup/ directory from the production deployment.
-2. Upgrade phpMyAdmin to a currently supported release.
-3. Restrict administrative access through network-level access controls.
-4. Enforce HTTPS for all administrative interfaces.
-5. Review filesystem permissions and ensure configuration files cannot be modified by unauthorized users.
+Обе версии считаются устаревшими и должны быть отключены в современных производственных системах.
 
-Priority: High.
+#### Риск и влияние
 
-⸻
+Поддержка устаревших версий TLS может приводить к:
 
-Finding 03 — Deprecated TLS Protocol Support
+- ослаблению защищенности канала связи;
+- повышенной уязвимости к атакам, реализуемым против старых протоколов;
+- снижению надежности защищенного соединения в средах, где используются legacy-клиенты.
 
-Severity: Medium
-CWE: CWE-327 — Use of a Broken or Risky Cryptographic Algorithm
-Status: Confirmed observation.
+#### Рекомендации
 
-Description
+1. Отключить TLS 1.0 и TLS 1.1.
+2. Разрешить только TLS 1.2 и TLS 1.3.
+3. Проверить используемые наборы шифров.
+4. При необходимости настроить HSTS.
+5. После исправления повторно проверить конфигурацию TLS.
 
-The target server accepted HTTPS connections using deprecated TLS protocol versions.
+#### Приоритет
 
-The following protocols were identified during OpenSSL handshake testing:
+Средний.
 
-* TLS 1.0
-* TLS 1.1
+---
 
-Both protocols have been formally deprecated and should no longer be enabled for modern production environments.
+### Найдение 04 — Отсутствие атрибутов безопасности у cookie
 
-Security Impact
+- Уровень риска: Низкий
+- CWE: CWE-614 — Sensitive Cookie in HTTPS Session Without ‘Secure’ Attribute
+- CWE: CWE-1004 — Sensitive Cookie Without ‘HttpOnly’ Flag
+- Статус: Подтверждено
 
-Continued support for deprecated TLS versions may expose connections to known protocol-level weaknesses and reduce the overall security of encrypted communications.
+#### Описание
 
-Depending on the enabled cipher suites and client configuration, legacy protocol support may increase exposure to attacks associated with older TLS implementations.
+Были обнаружены cookie, у которых отсутствовали ожидаемые атрибуты безопасности:
 
-Recommendations
+- UserId
+- ndn_adv_float_n
+- ndn_adv_block_txt_new_n
 
-1. Disable TLS 1.0 and TLS 1.1.
-2. Enable TLS 1.2 and TLS 1.3 exclusively.
-3. Review supported cipher suites.
-4. Configure HTTP Strict Transport Security (HSTS), where appropriate.
-5. Perform a follow-up TLS configuration assessment after remediation.
+У наблюдаемых cookie отсутствовали атрибуты `Secure` и `HttpOnly`.
 
-Priority: Medium.
+#### Риск и влияние
 
-⸻
+- Отсутствие `HttpOnly` повышает вероятность доступа к cookie из JavaScript, что особенно опасно при наличии XSS.
+- Отсутствие `Secure` позволяет передавать cookie по незашифрованному HTTP.
+- Реальный эффект зависит от назначения и чувствительности каждого конкретного cookie.
 
-Finding 04 — Missing HTTP Cookie Security Attributes
+#### Рекомендации
 
-Severity: Low
-CWE: CWE-614 — Sensitive Cookie in HTTPS Session Without ‘Secure’ Attribute
-CWE: CWE-1004 — Sensitive Cookie Without ‘HttpOnly’ Flag
-Status: Confirmed observation.
+1. Добавить атрибут `Secure` для cookie, которые должны передаваться только по HTTPS.
+2. Добавить атрибут `HttpOnly` для cookie сессии и аутентификации, доступ к которым не должен быть доступен из JavaScript.
+3. Настроить подходящую политику `SameSite` (например, `Lax`).
+4. Оценить назначение каждого cookie и его чувствительность.
+5. Проверить повторную генерацию идентификаторов сессии после аутентификации.
 
-Description
+#### Приоритет
 
-Several cookies were observed without the expected security attributes.
+Низкий.
 
-Identified cookies included:
+---
 
-* UserId
-* ndn_adv_float_n
-* ndn_adv_block_txt_new_n
+### Найдение 05 — Wildcard DNS-конфигурация
 
-The observed configuration lacked the Secure and HttpOnly attributes.
+- Уровень риска: Информационный
+- Статус: Подтверждено
 
-Security Impact
+#### Описание
 
-The absence of the HttpOnly attribute may allow client-side JavaScript to access cookies, increasing the potential impact of a successful Cross-Site Scripting vulnerability.
+Для целевого домена наблюдалась wildcard DNS-конфигурация (`*`).
 
-The absence of the Secure attribute may permit cookie transmission over unencrypted HTTP connections.
+Произвольные запросы к субдоменам резолвились на тот же IP-адрес инфраструктуры:
 
-The actual impact depends on the purpose and sensitivity of each cookie.
+`198.51.100.42`
 
-Recommendations
+Это означает, что неподтвержденные или случайные субдомены могут быть разрешены в основной сервисный endpoint.
 
-1. Apply Secure to cookies that should only be transmitted over HTTPS.
-2. Apply HttpOnly to session and authentication cookies that do not require JavaScript access.
-3. Configure an appropriate SameSite policy, such as Lax.
-4. Review cookie purposes and sensitivity individually.
-5. Verify that session cookies are regenerated appropriately after authentication.
+#### Риск и влияние
 
-Priority: Low.
+Wildcard DNS может привести к:
 
-⸻
+- ложноположительным результатам при переборе субдоменов;
+- непреднамеренному раскрытию виртуальных хостов;
+- затруднению разграничения легитимных и случайных субдоменов;
+- возможному злоупотреблению механизмом автоматического разрешения субдоменов в фишинговых и имитационных атаках.
 
-Finding 05 — Wildcard DNS Configuration
+Сам по себе wildcard DNS не доказывает наличие уязвимости или успешной подмены домена, но усложняет защиту и мониторинг.
 
-Severity: Informational
-Status: Confirmed observation.
+#### Рекомендации
 
-Description
+1. Проверить, действительно ли wildcard DNS необходим.
+2. Удалить wildcard-запись, если она не требуется.
+3. Явно описать разрешенные субдомены.
+4. Настроить веб-сервер так, чтобы он отклонял неожиданные имена хостов.
+5. Пересмотреть управление сертификатами и виртуальными хостами.
 
-The target domain was observed using a wildcard DNS record (*).
+#### Приоритет
 
-Arbitrary subdomain queries resolved to the same infrastructure IP address:
+Информационный.
 
-198.51.100.42
+---
 
-This configuration causes otherwise undefined subdomains to resolve to the primary infrastructure endpoint.
+## 4. Проверка безопасности на уровне приложения
 
-Security Impact
+Дополнительное тестирование выполнялось для функциональности поиска по URL:
 
-Wildcard DNS can introduce operational and security complications, including:
+`/seek/?text=`
 
-* False positives during subdomain enumeration.
-* Unintended exposure of virtual hosts.
-* Increased difficulty distinguishing legitimate subdomains from arbitrary names.
-* Potential abuse of automatically resolving subdomains in phishing or impersonation scenarios.
+Целью проверки было оценить базовую обработку пользовательского ввода и возможность эксплуатации уязвимостей типа инъекции.
 
-Wildcard resolution alone does not establish a vulnerability or demonstrate successful domain impersonation.
+### 4.1 Cross-Site Scripting (XSS)
 
-Recommendations
+- Тип теста: Reflected XSS
+- Результат: Успешная эксплуатация не наблюдалась
 
-1. Review the operational necessity of wildcard DNS.
-2. Remove the wildcard record if it is not required.
-3. Explicitly define authorized subdomains.
-4. Ensure the web server rejects unexpected hostnames.
-5. Review certificate issuance and virtual-host configuration.
+#### Описание проверки
 
-Priority: Informational.
+Параметр поиска был протестирован на типовые векторы XSS, включая:
 
-⸻
+- базовые теги `<script>`;
+- изображения с обработчиками событий;
+- попытки разрыва атрибутов кавычками;
+- HTML-инъекции.
 
-4. Application-Layer Security Validation
+В ответах приложения проверяемый ввод либо экранировался, либо кодировался в HTML.
 
-Additional testing was performed against the application’s search functionality:
+#### Оценка
 
-/seek/?text=
+Проверенные сценарии не привели к успешному выполнению JavaScript в пределах тестового набора. Это указывает на наличие защитных механизмов и корректную санитизацию/экранирование в рассмотренных случаях.
 
-The objective was to evaluate basic input-handling behavior and identify potential injection vulnerabilities.
+Однако результат не означает полного отсутствия XSS уязвимостей на других endpoint, параметрах или контекстах исполнения.
 
-4.1 Cross-Site Scripting (XSS)
+#### Вывод
 
-Test Category: Reflected XSS
-Result: No successful execution observed.
+В пределах проведенного аудита XSS уязвимость не была продемонстрирована.
 
-Testing Description
+---
 
-The search parameter was tested using representative XSS input categories, including:
+### 4.2 SQL Injection (SQLi)
 
-* Basic script elements.
-* Image elements with event-handler attributes.
-* Attribute-breaking quotation marks.
-* HTML injection attempts.
+- Тип теста: Error-based, Boolean-based, Time-based SQL Injection
+- Результат: Успешная эксплуатация не наблюдалась
 
-The application returned responses in which the tested input was sanitized or HTML-encoded.
+#### Описание проверки
 
-No successful JavaScript execution was observed during the performed checks.
+Параметр поиска был протестирован на типовые SQL Injection варианты, включая сценарии с ошибками, логическими условиями и задержками.
 
-Assessment
+Ответы приложения оставались стабильными при различных входных значениях. Не было выявлено характерных ошибок базы данных, а также надежных различий по времени исполнения запроса.
 
-The tested input-handling behavior indicates that the application implements defensive output handling for the examined cases.
+#### Оценка
 
-However, this result does not establish the complete absence of XSS vulnerabilities across other application endpoints, parameters, or execution contexts.
+Данные проверки не подтверждают наличие успешной SQL Injection в рамках функциональности поиска. Однако стабильность ответа сама по себе не гарантирует, что внутри приложения действительно используются параметризованные запросы. Для подтверждения необходимо получить доступ к исходному коду или провести более глубокую авторизованную проверку.
 
-Conclusion: No XSS vulnerability was demonstrated within the tested scope.
+#### Вывод
 
-4.2 SQL Injection (SQLi)
+Для проверенной области уязвимость SQL Injection не была продемонстрирована.
 
-Test Category: Error-based, Boolean-based, and Time-based SQL Injection
-Result: No successful exploitation observed.
+---
 
-Testing Description
+## 5. Итоговая оценка рисков
 
-The search parameter was evaluated using representative SQL injection test categories.
+| ID | Находка | Уровень риска | Статус |
+| --- | --- | --- | --- |
+| 01 | Устаревшая версия PHP | Высокий | Обнаружено |
+| 02 | Открытый интерфейс phpMyAdmin | Высокий | Подтверждено |
+| 03 | Поддержка TLS 1.0/1.1 | Средний | Подтверждено |
+| 04 | Отсутствие атрибутов безопасности у cookie | Низкий | Подтверждено |
+| 05 | Wildcard DNS | Информационный | Подтверждено |
+| 06 | XSS | Нет находки | Не продемонстрировано |
+| 07 | SQL Injection | Нет находки | Не продемонстрировано |
 
-The observed application responses remained consistent across the tested input conditions.
+Примечание: дополнительные уязвимости, связанные с устаревшей PHP-средой, следует проверять отдельно по точной версии пакета, сборке и доступным патчам безопасности.
 
-No database error messages or reliable timing differences attributable to SQL injection were identified.
+---
 
-Assessment
+## 6. План устранения рисков и дорожная карта
 
-The results provide no evidence of a successful SQL injection vulnerability within the tested search functionality.
+### Немедленные действия
 
-However, identical responses alone do not prove that parameterized queries are implemented internally.
+- заменить устаревшую PHP-среду на поддерживаемую версию;
+- проверить уязвимости, связанные с конкретной сборкой PHP, и применить обновления;
+- удалить публично доступный интерфейс настройки phpMyAdmin;
+- обновить phpMyAdmin до актуальной поддерживаемой версии.
 
-Confirmation of parameterized query usage would require access to the relevant application code or additional authorized testing.
+### Краткосрочные действия
 
-Conclusion: No SQL injection vulnerability was demonstrated within the tested scope.
+- отключить TLS 1.0 и TLS 1.1;
+- включить только TLS 1.2 и TLS 1.3;
+- проверить и исправить cookie-параметры безопасности;
+- ограничить административный доступ к системам;
+- пересмотреть wildcard DNS-конфигурацию.
 
-⸻
+### Проверка после исправления
 
-5. Risk Summary
+Необходимо повторно провести аудит для подтверждения:
 
-ID	Finding	Severity	Status
-01	End-of-Life PHP Runtime	High	Observed
-02	Exposed phpMyAdmin Setup	High	Confirmed
-03	Deprecated TLS Protocols	Medium	Confirmed
-04	Missing Cookie Attributes	Low	Confirmed
-05	Wildcard DNS Configuration	Informational	Confirmed
-06	Cross-Site Scripting	No finding	Not demonstrated
-07	SQL Injection	No finding	Not demonstrated
+- актуальности версии PHP и уровня безопасности пакетов;
+- отсутствия открытого доступа к phpMyAdmin;
+- корректности конфигурации TLS;
+- наличия корректных атрибутов cookie;
+- устранения wildcard DNS;
+- сохранности защиты веб-приложения от XSS и SQL Injection.
 
-Note: CVE-2026-109618 represents an additional potentially critical risk associated with Finding 01. Its applicability to the exact installed package requires verification.
+---
 
-⸻
+## 7. Заключение
 
-6. Remediation Roadmap
+В результате аудита были выявлены несколько существенных проблем безопасности, преимущественно в инфраструктурном слое. Наиболее критичными являются устаревшая версия PHP и публично доступный интерфейс настройки phpMyAdmin. Эти факторы увеличивают вероятность успешной эксплуатации известных уязвимостей и требуют оперативного устранения.
 
-The following remediation priorities are recommended.
+Проверка функциональности поиска на уровне приложения не выявила успешного исполнения XSS- и SQL Injection-сценариев в рамках определенного набора тестов. Однако это не подтверждает полную безопасность приложения в целом, а лишь свидетельствует об отсутствии явных проблем в проверенных точках.
 
-Immediate Actions
+Итоговый вывод: инфраструктура требует значительного улучшения параметров защиты. Основное внимание должно быть уделено обновлению устаревших компонентов, закрытию лишних административных интерфейсов, отключению устаревших протоколов и обеспечению корректной конфигурации безопасности приложений и сервисов.
 
-* Replace the unsupported PHP runtime with a maintained release.
-* Verify exposure to CVE-2026-109618 and apply the appropriate security updates.
-* Remove the publicly accessible phpMyAdmin setup directory.
-* Upgrade the obsolete phpMyAdmin installation.
+Рекомендуется провести повторную проверку после устранения выявленных недостатков для подтверждения эффективности мер по снижению риска.
 
-Short-Term Actions
+---
 
-* Disable TLS 1.0 and TLS 1.1.
-* Enforce modern TLS configurations.
-* Review cookie security attributes.
-* Restrict administrative interface access.
-* Review wildcard DNS configuration.
+## 8. Список использованных источников
 
-Follow-Up Validation
+1. PHP — Официальное объявление о завершении поддержки PHP 5.3: https://www.php.net/releases/5_3_29.php  
+2. PHP — Поддерживаемые версии: https://www.php.net/supported-versions.php  
+3. IETF — RFC 8996, Deprecating TLS 1.0 and TLS 1.1: https://www.rfc-editor.org/rfc/rfc8996  
+4. phpMyAdmin — Рекомендации по безопасной установке: https://github.com/phpmyadmin/phpmyadmin/blob/master/docs/setup.rst  
 
-After remediation, conduct a follow-up security assessment to verify:
+---
 
-* PHP runtime and package security status.
-* phpMyAdmin version and administrative exposure.
-* TLS protocol configuration.
-* Cookie security attributes.
-* DNS resolution behavior.
-* Application-layer input validation.
-
-⸻
-
-7. Conclusion
-
-The assessment identified multiple infrastructure-level security weaknesses, primarily associated with outdated software components and insufficient configuration hardening.
-
-The most significant concerns are the unsupported PHP runtime and the publicly accessible phpMyAdmin setup interface.
-
-The PHP version disclosure indicates a substantial maintenance risk and warrants immediate investigation. The associated CVE must be evaluated against the exact installed package before confirming direct exploitability.
-
-The tested application-layer search functionality demonstrated defensive behavior against the examined XSS and SQL injection test cases. No successful exploitation was observed within the defined testing scope.
-
-Nevertheless, these results should not be interpreted as proof that the entire application is free from injection vulnerabilities.
-
-Final Assessment:
-
-The target infrastructure requires significant security improvements. Remediation should prioritize software lifecycle management, removal of unnecessary administrative interfaces, and modernization of cryptographic configurations.
-
-A follow-up assessment is recommended to confirm that the identified weaknesses have been adequately addressed.
-
-⸻
-
-8. References
-
-1. PHP — Official PHP 5.3 End-of-Life Announcement: https://www.php.net/releases/5_3_29.php
-2. PHP — Supported Versions: https://www.php.net/supported-versions.php
-3. CVE — CVE-2026-109618: https://www.cve.org/CVERecord?id=CVE-2026-109618
-4. Red Hat — CVE-2026-109618 Security Advisory: https://access.redhat.com/security/cve/cve-2026-109618
-5. ProjectDiscovery — Nuclei Detection Template: https://github.com/projectdiscovery/nuclei-templates/blob/main/http/cves/2026/CVE-2026-109618.yaml
-6. IETF — RFC 8996, Deprecating TLS 1.0 and TLS 1.1: https://www.rfc-editor.org/rfc/rfc8996
-7. phpMyAdmin — Installation Security Recommendations: https://github.com/phpmyadmin/phpmyadmin/blob/master/docs/setup.rst
-
-⸻
-
-End of Report
-Classification: Confidential — Security Assessment Documentation
+Конец отчета  
+Классификация: Конфиденциально — Документация по аудиту информационной безопасности
