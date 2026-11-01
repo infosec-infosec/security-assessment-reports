@@ -1,31 +1,37 @@
 # Security Assessment Reports Repository
 
-This repository contains a de-identified external security assessment of a publicly exposed web application and supporting infrastructure. The material is intentionally anonymized to preserve the target's confidentiality while retaining the substantive findings, limitations, and remediation recommendations of the assessment.
+This repository contains a de-identified external security assessment of a publicly exposed web application and supporting infrastructure. The material has been anonymized to protect the target while preserving the substantive findings, limitations, and remediation recommendations.
 
-The repository is organized for readability, traceability, and professional presentation:
+The project is organized to keep the report readable, traceable, and suitable for professional review:
 
 - `README.md` — repository overview and navigation
 - `docs/security-assessment-report.md` — full assessment report
 - `docs/appendix-methodology.md` — methodology, scope, and limitations
 - `archive/original/README.original.md` — preserved original report content
-- `assets/diagrams/architecture-overview.svg` — original architecture diagram
-- `assets/diagrams/risk-summary.svg` — original risk summary visualization
+- `assets/diagrams/architecture-overview.svg` — architecture diagram
+- `assets/diagrams/risk-summary.svg` — risk summary diagram
+- `assets/visuals/security-hero.svg` — open-source-style visual illustration
+- `assets/visuals/security-shield.svg` — security symbol illustration
 
-## Repository Purpose
+## Overview
 
-This repository is intended to document an external black-box security assessment in a consultant-grade manner. It emphasizes clear reporting, defensible evidence, precisely worded findings, and a professional structure suitable for internal review, stakeholder communication, and documentation archiving.
+This repository documents a focused external review of a target news portal with public-facing services. The assessment centers on configuration weaknesses, legacy software exposure, hardening gaps, and limited application-layer validation under a controlled, non-destructive testing model.
 
-## Assessment Summary
+The report was refined to read like a professional security assessment rather than a generic template. It keeps the evidence intact while improving clarity, structure, and editorial quality.
 
-The assessment identified several material concerns, primarily in infrastructure configuration and software lifecycle management rather than in the tested application-layer search functionality. The most significant issues were:
+## Executive Summary
+
+The assessment identified several material concerns, especially in infrastructure and configuration hygiene rather than in the tested application-layer search functionality.
+
+The most significant findings were:
 
 - unsupported PHP runtime exposure (PHP 5.3.10);
 - publicly accessible phpMyAdmin setup interface;
 - support for deprecated TLS 1.0 and TLS 1.1 protocols;
 - missing Secure and HttpOnly attributes on HTTP cookies;
-- wildcard DNS behavior resulting in arbitrary subdomain resolution.
+- wildcard DNS behavior that caused arbitrary subdomains to resolve to the same infrastructure address.
 
-No successful exploitation was observed in the tested XSS or SQL injection scenarios within the defined scope. However, the absence of observed exploitation does not constitute a guarantee that all application surfaces are free from weakness.
+No successful exploitation was observed in the tested XSS or SQL injection scenarios within the defined review scope. That said, the absence of observed exploitation does not prove that every application surface is free from weakness.
 
 ## Report Index
 
@@ -33,35 +39,33 @@ No successful exploitation was observed in the tested XSS or SQL injection scena
 - [Methodology and Scope Appendix](docs/appendix-methodology.md)
 - [Original Preserved Report](archive/original/README.original.md)
 
-## Visual References
+## Visual Assets
 
-Figure 1. Architecture overview of the externally exposed services and primary findings.
+The repository includes simple, original vector illustrations designed for professional documentation and internal review. They are intentionally minimal and do not rely on copyrighted stock imagery.
 
-![Architecture overview](assets/diagrams/architecture-overview.svg)
+![Security hero illustration](assets/visuals/security-hero.svg)
 
-Figure 2. Summary of the most significant observed risk areas.
-
-![Risk summary](assets/diagrams/risk-summary.svg)
+![Security shield illustration](assets/visuals/security-shield.svg)
 
 ## Important Notes
 
-This repository preserves the original evidence-based assessment while improving clarity, formatting, and professional presentation. The findings remain intentionally conservative and do not claim to prove the absence of all vulnerabilities beyond the tested scope.
+This repository preserves the original evidence-based assessment while improving readability, consistency, and professional presentation. The conclusions remain conservative and do not claim that every possible vulnerability has been ruled out.
 
-Where the source material did not provide enough information to verify exact package-level impact or backport status, the report clearly identifies the need for manual validation.
+Where the available source material did not allow a definitive conclusion, the report notes the need for manual verification. This applies especially to package-level CVE applicability and the exact vendor patch state of the observed PHP runtime.
 
-## Report Classification
+## Classification
 
 Confidential — Security Assessment Documentation
 
-## Repository Use
+## Intended Use
 
-This repository may be used for:
+This repository is suitable for:
 
-- review of security assessment structure and reporting practices;
-- internal stakeholder communication;
-- educational reference for external penetration testing and security review documentation;
-- preservation of de-identified security evidence and remediation narrative.
+- internal review and stakeholder communication;
+- professional documentation reference;
+- security assessment and reporting practice;
+- evidence preservation of a de-identified black-box assessment.
 
 ## Final Note
 
-The repository was refined to improve readability, consistency, and professional quality without changing the underlying technical meaning or inventing unsupported findings. The final result is designed to be publication-ready and suitable for structured internal review.
+The content was revised to sound more human, precise, and professional without altering the underlying technical meaning. The repository is now structured for clearer reading and improved presentation.

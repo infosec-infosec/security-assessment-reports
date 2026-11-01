@@ -11,27 +11,25 @@ Confidential
 - Methodology: OWASP Top 10, PTES
 - Classification: Confidential
 
-Figure 1. Architecture overview of the target environment and primary concerns.
-
-![Architecture overview](../assets/diagrams/architecture-overview.svg)
+![Security hero illustration](../assets/visuals/security-hero.svg)
 
 ---
 
 ## 1. Executive Summary
 
-This report documents the results of an external information security assessment of a publicly exposed web application and supporting infrastructure. The review focused on externally visible system behavior, security configuration quality, administrative exposure, protocol hardening, DNS hygiene, and limited application-layer validation for common input-handling threats.
+This report documents the outcome of an external security assessment of a publicly exposed web application and supporting infrastructure. The review focused on externally visible services, configuration quality, administrative exposure, protocol hardening, DNS hygiene, and a narrow set of application-layer checks for common input-handling risks.
 
-The assessment identified several material risks, primarily associated with outdated software components, weak configuration hygiene, and insufficient infrastructure hardening. The most significant observations included:
+The assessment identified several material weaknesses, most of them in infrastructure and configuration discipline rather than in the tested application-layer search logic. The most significant issues were:
 
-- use of an outdated PHP 5.3.10 runtime;
+- an outdated PHP 5.3.10 runtime;
 - a publicly accessible phpMyAdmin setup interface;
-- support for deprecated TLS 1.0 and TLS 1.1 protocols;
-- missing Secure and HttpOnly attributes on several HTTP cookies;
-- wildcard DNS behavior that caused arbitrary subdomains to resolve to the same infrastructure address.
+- deprecated TLS 1.0 and TLS 1.1 support;
+- missing Secure and HttpOnly attributes on multiple HTTP cookies;
+- wildcard DNS behavior causing arbitrary subdomains to resolve to the same infrastructure address.
 
-Application-layer testing of the search functionality did not identify successful exploitation of the tested XSS or SQL injection scenarios within the scope of the assessment. However, this result is limited to the tested parameters and cannot be interpreted as a complete assurance that all application endpoints or contexts are free from weaknesses.
+Application-layer testing of the search functionality did not reveal successful exploitation of the tested XSS or SQL injection scenarios within the defined assessment scope. That result is limited to the tested parameters and should not be interpreted as full assurance that all application surfaces are free from weakness.
 
-The primary risks were concentrated in the infrastructure layer rather than in the tested application input-validation flow. The unsupported PHP runtime and the public phpMyAdmin setup interface represented the highest immediate concerns and were considered the most urgent items for remediation.
+The highest-risk items were concentrated in the infrastructure layer rather than in the reviewed application logic. The unsupported PHP runtime and the public phpMyAdmin setup interface were treated as the most urgent remediation priorities.
 
 ---
 
@@ -49,20 +47,20 @@ The assessment covered the following externally observable components:
 - DNS wildcard behavior;
 - application search functionality and limited validation of input handling.
 
-All identifying details were anonymized in order to protect the target identity while preserving the integrity of the assessment results.
+All identifying details were anonymized to protect the target while preserving the integrity of the assessment results.
 
 ### 2.2 Methodology
 
-The assessment followed a non-destructive black-box testing methodology aligned with established penetration-testing practices.
+The review was conducted using a non-destructive black-box methodology consistent with established penetration-testing practices.
 
-The review was informed by:
+The assessment drew on:
 
 - OWASP Top 10;
 - Penetration Testing Execution Standard (PTES);
 - Common Weakness Enumeration (CWE);
 - publicly documented vulnerability guidance and security advisories.
 
-Testing was limited to non-destructive checks and did not include intentional data modification, destructive exploitation, or service disruption. No active offensive testing beyond that required for safe validation was performed.
+Testing was limited to non-destructive checks and did not include intentional data modification, destructive exploitation, or service disruption. No offensive testing beyond what was necessary for safe validation was performed.
 
 ---
 
@@ -80,14 +78,14 @@ The server disclosed the following technology in HTTP response headers:
 
 `X-Powered-By: PHP/5.3.10-1ubuntu3.16`
 
-PHP 5.3 reached its official end-of-life status in 2014 and is no longer maintained by the upstream project. Continued use of an unsupported runtime substantially increases exposure to publicly documented vulnerabilities and compatibility issues.
+PHP 5.3 reached end-of-life in 2014 and is no longer maintained by the upstream project. Continued use of an unsupported runtime substantially increases exposure to publicly documented vulnerabilities and compatibility issues.
 
 Security Impact:
 
 - increased exposure to unpatched vulnerabilities;
-- potential remote code execution depending on vulnerability applicability and the exact affected build;
+- potential remote code execution depending on the specific vulnerability and the exact affected build;
 - denial-of-service risk;
-- heightened risk of compromise through vulnerable third-party components.
+- greater chance of compromise through vulnerable third-party components.
 
 Recommendations:
 
@@ -113,7 +111,7 @@ The following administrative interface was publicly accessible:
 
 `/phpmyadmin/setup/index.php`
 
-The setup interface allowed generation of a `config.inc.php` file and disclosed the version of the installed phpMyAdmin package:
+The setup interface allowed generation of a `config.inc.php` file and disclosed the installed phpMyAdmin version:
 
 `phpMyAdmin 3.4.10.1deb1`
 
@@ -123,14 +121,14 @@ Security Impact:
 
 - increased attack surface;
 - easier targeting of historical vulnerabilities;
-- possible risk of unauthorized configuration changes if filesystem permissions or deployment settings are later altered;
+- possible risk of unauthorized configuration changes if filesystem permissions or deployment settings are altered later;
 - unnecessary administrative exposure in production.
 
 Recommendations:
 
 1. Remove the `/setup/` directory from production deployments.
 2. Upgrade phpMyAdmin to a currently supported release.
-3. Restrict administrative access through network controls or trusted access paths.
+3. Restrict administrative access through network controls or trusted pathways.
 4. Enforce HTTPS on all administrative interfaces.
 5. Review file permissions to ensure configuration files cannot be modified by unauthorized users.
 
@@ -189,7 +187,7 @@ The observed cookies did not include `Secure` and `HttpOnly` attributes.
 
 Security Impact:
 
-- possible client-side access via JavaScript in the event of XSS;
+- potential client-side access via JavaScript in the event of XSS;
 - potential transmission of cookies over unencrypted HTTP;
 - elevated impact depending on the purpose and sensitivity of each cookie.
 
@@ -199,7 +197,7 @@ Recommendations:
 2. Apply `HttpOnly` to session and authentication cookies.
 3. Configure an appropriate `SameSite` policy.
 4. Review the purpose and sensitivity of each cookie.
-5. Regenerate session identifiers following authentication flows.
+5. Regenerate session identifiers after authentication flows.
 
 Priority: Low.
 
@@ -222,8 +220,8 @@ Security Impact:
 
 - false positives during subdomain enumeration;
 - unintended exposure of hostnames and virtual hosts;
-- increased difficulty in distinguishing valid from arbitrary subdomains;
-- potential abuse in impersonation or phishing-related scenarios.
+- increased difficulty distinguishing valid from arbitrary subdomains;
+- possible abuse in impersonation or phishing-related scenarios.
 
 Recommendations:
 
@@ -263,7 +261,7 @@ The application responses were consistent with sanitization or output encoding, 
 
 Assessment:
 
-The examined input-handling behavior suggested defensive output handling for the specific payloads tested. However, this does not provide proof that all application endpoints, parameters, or execution contexts are free from XSS risk.
+The examined input-handling behavior suggested defensive output handling for the specific payloads tested. However, this does not prove that all application endpoints, parameters, or execution contexts are free from XSS risk.
 
 Conclusion: No XSS vulnerability was demonstrated within the tested scope.
 
@@ -286,8 +284,6 @@ Conclusion: No SQL injection vulnerability was demonstrated within the tested sc
 
 ## 5. Risk Summary
 
-The following summary reflects the observed findings and their relative severity.
-
 | ID | Finding | Severity | Status |
 | --- | --- | --- | --- |
 | 01 | End-of-Life PHP Runtime | High | Observed |
@@ -299,8 +295,6 @@ The following summary reflects the observed findings and their relative severity
 | 07 | SQL Injection | No finding | Not demonstrated |
 
 Note: CVE-2026-109618 may represent an additional high-risk factor related to the observed PHP runtime. Its applicability to the exact installed package requires formal verification against the specific version, vendor patch level, and execution environment.
-
-Figure 2. Risk summary of the principal findings.
 
 ![Risk summary](../assets/diagrams/risk-summary.svg)
 
@@ -342,7 +336,7 @@ The assessment identified multiple infrastructure-level security weaknesses, pri
 
 The tested application-layer search functionality demonstrated defensive behavior against the tested XSS and SQL injection scenarios. No successful exploitation was observed within the defined test scope. However, those outcomes should not be interpreted as proof that the full application is free from injection risks. The findings are valid only for the assessed conditions and parameters.
 
-The target environment requires significant security improvements. Remediation should prioritize software lifecycle management, removal of unnecessary administrative exposure, modernization of cryptographic settings, and consistent hardening of cookie and DNS configurations. A follow-up assessment is recommended to confirm that the identified weaknesses have been adequately addressed.
+The target environment requires substantial security improvements. Remediation should prioritize software lifecycle management, removal of unnecessary administrative exposure, modernization of cryptographic settings, and consistent hardening of cookie and DNS configurations. A follow-up assessment is recommended to confirm that the identified weaknesses have been adequately addressed.
 
 ---
 

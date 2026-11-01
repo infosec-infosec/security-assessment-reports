@@ -15,31 +15,33 @@ Assessment Type: Black-Box Security Assessment
 Methodology: OWASP Top 10, PTES
 Report Classification: Confidential
 
-⸻
+---
 
 1. Executive Summary
 
 An independent black-box security assessment was conducted against the target news portal to evaluate its externally exposed infrastructure and application-layer security controls.
 
-The assessment focused on identifying outdated software components, insecure server configurations, publicly accessible administrative interfaces, and potential weaknesses in the application’s input[...]
+The assessment focused on identifying outdated software components, insecure server configurations, publicly accessible administrative interfaces, and potential weaknesses in the application’s input handling.
 
 The investigation identified several security concerns, primarily associated with legacy infrastructure components and insufficient security hardening.
 
 The most significant observations include:
 
-* An outdated PHP 5.3.10 runtime exposed through HTTP response headers.
-* A publicly accessible phpMyAdmin setup interface associated with an obsolete software release.
-* Support for deprecated TLS 1.0 and TLS 1.1 protocols.
-* Missing security attributes on several HTTP cookies.
-* A wildcard DNS configuration affecting arbitrary subdomain resolution.
+- an outdated PHP 5.3.10 runtime exposed through HTTP response headers;
+- a publicly accessible phpMyAdmin setup interface associated with an obsolete software release;
+- support for deprecated TLS 1.0 and TLS 1.1 protocols;
+- missing security attributes on several HTTP cookies;
+- a wildcard DNS configuration affecting arbitrary subdomain resolution.
 
 Application-layer testing of the publicly accessible search functionality did not identify successful exploitation of the tested XSS or SQL injection cases.
 
-Overall Assessment:
+Overall assessment:
 
-The primary security concerns are concentrated within the infrastructure layer rather than the tested application input-handling mechanisms. The outdated PHP runtime represents a significant maintenan[...]
+The primary security concerns are concentrated within the infrastructure layer rather than in the tested application input-handling mechanisms. The outdated PHP runtime represents a significant maintenance risk.
 
 Immediate infrastructure remediation is recommended.
+
+---
 
 2. Scope and Methodology
 
@@ -47,13 +49,13 @@ Immediate infrastructure remediation is recommended.
 
 The assessment covered the following externally observable components:
 
-* HTTP response headers and technology identification.
-* PHP runtime version disclosure.
-* Publicly accessible phpMyAdmin interfaces.
-* TLS protocol configuration.
-* HTTP cookie security attributes.
-* DNS wildcard resolution.
-* Search functionality and input validation.
+- HTTP response headers and technology identification;
+- PHP runtime version disclosure;
+- publicly accessible phpMyAdmin interfaces;
+- TLS protocol configuration;
+- HTTP cookie security attributes;
+- DNS wildcard resolution;
+- search functionality and input validation.
 
 All identifying information has been anonymized.
 
@@ -63,14 +65,14 @@ The assessment followed a black-box testing approach based on established penetr
 
 The primary references were:
 
-* OWASP Top 10.
-* Penetration Testing Execution Standard (PTES).
-* Common Weakness Enumeration (CWE).
-* Publicly documented vulnerability advisories.
+- OWASP Top 10;
+- Penetration Testing Execution Standard (PTES);
+- Common Weakness Enumeration (CWE);
+- publicly documented vulnerability advisories.
 
 Testing was limited to non-destructive security checks. No intentional data modification, destructive exploitation, or service disruption was performed.
 
-⸻
+---
 
 3. Technical Findings
 
@@ -85,7 +87,7 @@ Description
 
 The HTTP response headers disclosed the following server-side technology:
 
-X-Powered-By: PHP/5.3.10-1ubuntu3.16
+`X-Powered-By: PHP/5.3.10-1ubuntu3.16`
 
 PHP 5.3 reached its official end-of-life status in 2014. Consequently, this release is no longer supported by upstream PHP security maintenance.
 
@@ -95,32 +97,30 @@ Related Vulnerability
 
 The assessment identified CVE-2026-109618 as a relevant vulnerability requiring investigation.
 
-The vulnerability concerns improper handling of Out-Of-Memory (OOM) conditions involving PHP’s longjmp() error-handling mechanism. Under certain conditions, incomplete request-state initialization c[...]
+The vulnerability concerns improper handling of out-of-memory conditions involving PHP’s `longjmp()` error-handling mechanism. Under certain conditions, incomplete request-state initialization may permit security-relevant behavior.
 
 Depending on the affected build and execution environment, successful exploitation may result in remote code execution or denial of service.
-
-However, the publicly disclosed PHP version alone does not establish that this specific CVE is exploitable on the target. The installed Ubuntu package revision, vendor security backports, and affected[...]
 
 Security Impact
 
 An unsupported PHP runtime may expose the application to:
 
-* Previously identified and unpatched vulnerabilities.
-* Potential remote code execution.
-* Denial-of-service conditions.
-* Increased risk of compromise through vulnerable third-party components.
+- previously identified and unpatched vulnerabilities;
+- potential remote code execution;
+- denial-of-service conditions;
+- increased risk of compromise through vulnerable third-party components.
 
 Recommendations
 
 1. Migrate to a currently supported PHP release.
 2. Verify the installed package revision against the relevant security advisories.
 3. Apply all available vendor security updates.
-4. Disable unnecessary version disclosure using expose_php = Off.
+4. Disable unnecessary version disclosure using `expose_php = Off`.
 5. Review PHP extensions and remove unsupported components.
 
 Priority: Immediate.
 
-⸻
+---
 
 Finding 02 — Publicly Accessible phpMyAdmin Setup Interface
 
@@ -133,15 +133,15 @@ Description
 
 The following installation interface was publicly accessible:
 
-/phpmyadmin/setup/index.php
+`/phpmyadmin/setup/index.php`
 
-During the assessment, the setup interface allowed the generation and download of a config.inc.php configuration file.
+During the assessment, the setup interface allowed the generation and download of a `config.inc.php` configuration file.
 
 The downloaded file did not contain active database credentials. This was consistent with the observed lack of write permissions on the configuration directory.
 
 However, the generated file disclosed the exact software version:
 
-phpMyAdmin 3.4.10.1deb1
+`phpMyAdmin 3.4.10.1deb1`
 
 This release dates back to 2012 and is significantly outdated.
 
@@ -157,7 +157,7 @@ No database compromise or unauthorized configuration modification was demonstrat
 
 Recommendations
 
-1. Remove the /setup/ directory from the production deployment.
+1. Remove the `/setup/` directory from the production deployment.
 2. Upgrade phpMyAdmin to a currently supported release.
 3. Restrict administrative access through network-level access controls.
 4. Enforce HTTPS for all administrative interfaces.
@@ -165,7 +165,7 @@ Recommendations
 
 Priority: High.
 
-⸻
+---
 
 Finding 03 — Deprecated TLS Protocol Support
 
@@ -179,8 +179,8 @@ The target server accepted HTTPS connections using deprecated TLS protocol versi
 
 The following protocols were identified during OpenSSL handshake testing:
 
-* TLS 1.0
-* TLS 1.1
+- TLS 1.0
+- TLS 1.1
 
 Both protocols have been formally deprecated and should no longer be enabled for modern production environments.
 
@@ -200,7 +200,7 @@ Recommendations
 
 Priority: Medium.
 
-⸻
+---
 
 Finding 04 — Missing HTTP Cookie Security Attributes
 
@@ -215,15 +215,15 @@ Several cookies were observed without the expected security attributes.
 
 Identified cookies included:
 
-* UserId
-* ndn_adv_float_n
-* ndn_adv_block_txt_new_n
+- UserId
+- ndn_adv_float_n
+- ndn_adv_block_txt_new_n
 
 The observed configuration lacked the Secure and HttpOnly attributes.
 
 Security Impact
 
-The absence of the HttpOnly attribute may allow client-side JavaScript to access cookies, increasing the potential impact of a successful Cross-Site Scripting vulnerability.
+The absence of the HttpOnly attribute may allow client-side JavaScript to access cookies, increasing the potential impact of a successful cross-site scripting vulnerability.
 
 The absence of the Secure attribute may permit cookie transmission over unencrypted HTTP connections.
 
@@ -239,7 +239,7 @@ Recommendations
 
 Priority: Low.
 
-⸻
+---
 
 Finding 05 — Wildcard DNS Configuration
 
@@ -248,11 +248,11 @@ Status: Confirmed observation.
 
 Description
 
-The target domain was observed using a wildcard DNS record (*).
+The target domain was observed using a wildcard DNS record (`*`).
 
 Arbitrary subdomain queries resolved to the same infrastructure IP address:
 
-198.51.100.42
+`198.51.100.42`
 
 This configuration causes otherwise undefined subdomains to resolve to the primary infrastructure endpoint.
 
@@ -260,10 +260,10 @@ Security Impact
 
 Wildcard DNS can introduce operational and security complications, including:
 
-* False positives during subdomain enumeration.
-* Unintended exposure of virtual hosts.
-* Increased difficulty distinguishing legitimate subdomains from arbitrary names.
-* Potential abuse of automatically resolving subdomains in phishing or impersonation scenarios.
+- false positives during subdomain enumeration;
+- unintended exposure of virtual hosts;
+- increased difficulty distinguishing legitimate subdomains from arbitrary names;
+- potential abuse of automatically resolving subdomains in phishing or impersonation scenarios.
 
 Wildcard resolution alone does not establish a vulnerability or demonstrate successful domain impersonation.
 
@@ -277,13 +277,13 @@ Recommendations
 
 Priority: Informational.
 
-⸻
+---
 
 4. Application-Layer Security Validation
 
 Additional testing was performed against the application’s search functionality:
 
-/seek/?text=
+`/seek/?text=`
 
 The objective was to evaluate basic input-handling behavior and identify potential injection vulnerabilities.
 
@@ -296,10 +296,10 @@ Testing Description
 
 The search parameter was tested using representative XSS input categories, including:
 
-* Basic script elements.
-* Image elements with event-handler attributes.
-* Attribute-breaking quotation marks.
-* HTML injection attempts.
+- basic script elements;
+- image elements with event-handler attributes;
+- attribute-breaking quotation marks;
+- HTML injection attempts.
 
 The application returned responses in which the tested input was sanitized or HTML-encoded.
 
@@ -336,7 +336,7 @@ Confirmation of parameterized query usage would require access to the relevant a
 
 Conclusion: No SQL injection vulnerability was demonstrated within the tested scope.
 
-⸻
+---
 
 5. Risk Summary
 
@@ -351,7 +351,7 @@ ID	Finding	Severity	Status
 
 Note: CVE-2026-109618 represents an additional potentially critical risk associated with Finding 01. Its applicability to the exact installed package requires verification.
 
-⸻
+---
 
 6. Remediation Roadmap
 
@@ -359,31 +359,31 @@ The following remediation priorities are recommended.
 
 Immediate Actions
 
-* Replace the unsupported PHP runtime with a maintained release.
-* Verify exposure to CVE-2026-109618 and apply the appropriate security updates.
-* Remove the publicly accessible phpMyAdmin setup directory.
-* Upgrade the obsolete phpMyAdmin installation.
+- Replace the unsupported PHP runtime with a maintained release.
+- Verify exposure to CVE-2026-109618 and apply the appropriate security updates.
+- Remove the publicly accessible phpMyAdmin setup directory.
+- Upgrade the obsolete phpMyAdmin installation.
 
 Short-Term Actions
 
-* Disable TLS 1.0 and TLS 1.1.
-* Enforce modern TLS configurations.
-* Review cookie security attributes.
-* Restrict administrative interface access.
-* Review wildcard DNS configuration.
+- Disable TLS 1.0 and TLS 1.1.
+- Enforce modern TLS configurations.
+- Review cookie security attributes.
+- Restrict administrative interface access.
+- Review wildcard DNS configuration.
 
 Follow-Up Validation
 
 After remediation, conduct a follow-up security assessment to verify:
 
-* PHP runtime and package security status.
-* phpMyAdmin version and administrative exposure.
-* TLS protocol configuration.
-* Cookie security attributes.
-* DNS resolution behavior.
-* Application-layer input validation.
+- PHP runtime and package security status;
+- phpMyAdmin version and administrative exposure;
+- TLS protocol configuration;
+- cookie security attributes;
+- DNS resolution behavior;
+- application-layer input validation.
 
-⸻
+---
 
 7. Conclusion
 
@@ -391,19 +391,19 @@ The assessment identified multiple infrastructure-level security weaknesses, pri
 
 The most significant concerns are the unsupported PHP runtime and the publicly accessible phpMyAdmin setup interface.
 
-The PHP version disclosure indicates a substantial maintenance risk and warrants immediate investigation. The associated CVE must be evaluated against the exact installed package before confirming dir[...]
+The PHP version disclosure indicates a substantial maintenance risk and warrants immediate investigation. The associated CVE must be evaluated against the exact installed package before confirming direct risk.
 
-The tested application-layer search functionality demonstrated defensive behavior against the examined XSS and SQL injection test cases. No successful exploitation was observed within the defined test[...]
+The tested application-layer search functionality demonstrated defensive behavior against the examined XSS and SQL injection test cases. No successful exploitation was observed within the defined test scope.
 
 Nevertheless, these results should not be interpreted as proof that the entire application is free from injection vulnerabilities.
 
-Final Assessment:
+Final assessment:
 
-The target infrastructure requires significant security improvements. Remediation should prioritize software lifecycle management, removal of unnecessary administrative interfaces, and modernization o[...]
+The target infrastructure requires significant security improvements. Remediation should prioritize software lifecycle management, removal of unnecessary administrative interfaces, and modernization of configuration hardening.
 
 A follow-up assessment is recommended to confirm that the identified weaknesses have been adequately addressed.
 
-⸻
+---
 
 8. References
 
@@ -411,11 +411,11 @@ A follow-up assessment is recommended to confirm that the identified weaknesses 
 2. PHP — Supported Versions: https://www.php.net/supported-versions.php
 3. CVE — CVE-2026-109618: https://www.cve.org/CVERecord?id=CVE-2026-109618
 4. Red Hat — CVE-2026-109618 Security Advisory: https://access.redhat.com/security/cve/cve-2026-109618
-5. ProjectDiscovery — Nuclei Detection Template: https://github.com/projectdiscovery/nuclei-templates/blob/main/http/cves/2026/CVE-2026-109618.yaml
+5. ProjectDiscovery — Nuclei detection template: https://github.com/projectdiscovery/nuclei-templates/blob/main/http/cves/2026/CVE-2026-109618.yaml
 6. IETF — RFC 8996, Deprecating TLS 1.0 and TLS 1.1: https://www.rfc-editor.org/rfc/rfc8996
 7. phpMyAdmin — Installation Security Recommendations: https://github.com/phpmyadmin/phpmyadmin/blob/master/docs/setup.rst
 
-⸻
+---
 
 End of Report
 Classification: Confidential — Security Assessment Documentation

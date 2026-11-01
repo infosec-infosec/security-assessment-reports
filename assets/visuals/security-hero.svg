@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="768" viewBox="0 0 1024 768" role="img" aria-labelledby="title desc">
+  <title id="title">Security hero illustration</title>
+  <desc id="desc">Minimal vector illustration showing a shield, network, and a lock to represent security assessment work.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0%" stop-color="#f8f8f6"/>
+      <stop offset="100%" stop-color="#ededeb"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="0" x2="1">
+      <stop offset="0%" stop-color="#1f1f1f"/>
+      <stop offset="100%" stop-color="#4a4a4a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="768" fill="url(#bg)"/>
+  <g opacity="0.12">
+    <circle cx="190" cy="170" r="120" fill="#b5b5b5"/>
+    <circle cx="845" cy="200" r="110" fill="#b5b5b5"/>
+    <circle cx="770" cy="620" r="140" fill="#b5b5b5"/>
+  </g>
+
+  <g transform="translate(160 120)">
+    <path d="M200 0 L380 70 L380 270 C380 365 282 425 200 475 C118 425 20 365 20 270 L20 70 Z" fill="url(#shield)"/>
+    <path d="M200 50 L335 110 L335 255 C335 320 275 365 200 408 C125 365 65 320 65 255 L65 110 Z" fill="#ffffff" opacity="0.96"/>
+    <path d="M200 98 L255 116 L255 186 C255 228 228 255 200 272 C172 255 145 228 145 186 L145 116 Z" fill="#373737"/>
+    <rect x="137" y="340" width="126" height="12" rx="6" fill="#d0d0d0"/>
+    <rect x="118" y="364" width="164" height="12" rx="6" fill="#d0d0d0"/>
+    <rect x="135" y="388" width="130" height="12" rx="6" fill="#d0d0d0"/>
+  </g>
+
+  <g transform="translate(610 170)">
+    <circle cx="120" cy="120" r="110" fill="#ffffff" stroke="#2a2a2a" stroke-width="3"/>
+    <circle cx="120" cy="120" r="70" fill="#f2f2f2" stroke="#4a4a4a" stroke-width="2"/>
+    <path d="M80 120 L110 150 L160 94" fill="none" stroke="#2a2a2a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="120" y1="8" x2="120" y2="58" stroke="#4a4a4a" stroke-width="8"/>
+    <line x1="120" y1="232" x2="120" y2="182" stroke="#4a4a4a" stroke-width="8"/>
+    <line x1="12" y1="120" x2="62" y2="120" stroke="#4a4a4a" stroke-width="8"/>
+    <line x1="178" y1="120" x2="228" y2="120" stroke="#4a4a4a" stroke-width="8"/>
+  </g>
+
+  <g transform="translate(120 560)">
+    <text x="0" y="0" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#1d1d1d">Security Assessment</text>
+    <text x="0" y="42" font-family="Arial, Helvetica, sans-serif" font-size="20" fill="#555555">External review · configuration · risk and remediation</text>
+  </g>
+</svg>

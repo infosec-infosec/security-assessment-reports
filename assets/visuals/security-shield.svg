@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640" role="img" aria-labelledby="title desc">
+  <title id="title">Security shield illustration</title>
+  <desc id="desc">Minimal shield and lock illustration representing security hardening and assessment.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0%" stop-color="#f5f5f3"/>
+      <stop offset="100%" stop-color="#ecece8"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="640" fill="url(#bg)"/>
+  <g transform="translate(120 50)">
+    <path d="M200 0 L380 70 L380 270 C380 365 282 425 200 475 C118 425 20 365 20 270 L20 70 Z" fill="#1f1f1f"/>
+    <path d="M200 52 L332 110 L332 255 C332 320 274 364 200 407 C126 364 68 320 68 255 L68 110 Z" fill="#ffffff"/>
+    <rect x="139" y="150" width="122" height="120" rx="18" fill="#2f2f2f"/>
+    <rect x="170" y="118" width="60" height="60" rx="12" fill="#d7d7d7"/>
+    <path d="M183 200 L206 223 L236 182" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="127" y1="334" x2="273" y2="334" stroke="#4a4a4a" stroke-width="10" stroke-linecap="round"/>
+    <line x1="112" y1="366" x2="288" y2="366" stroke="#4a4a4a" stroke-width="10" stroke-linecap="round"/>
+    <line x1="120" y1="398" x2="280" y2="398" stroke="#4a4a4a" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>
