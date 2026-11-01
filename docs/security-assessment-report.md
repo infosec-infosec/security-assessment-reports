@@ -11,8 +11,6 @@ Confidential
 - Methodology: OWASP Top 10, PTES
 - Classification: Confidential
 
-![Security hero illustration](../assets/visuals/security-hero.svg)
-
 ---
 
 ## 1. Executive Summary
@@ -295,8 +293,6 @@ Conclusion: No SQL injection vulnerability was demonstrated within the tested sc
 | 07 | SQL Injection | No finding | Not demonstrated |
 
 Note: CVE-2026-109618 may represent an additional high-risk factor related to the observed PHP runtime. Its applicability to the exact installed package requires formal verification against the specific version, vendor patch level, and execution environment.
-
-![Risk summary](../assets/diagrams/risk-summary.svg)
 
 ---
 
